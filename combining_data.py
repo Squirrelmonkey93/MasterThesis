@@ -1,4 +1,4 @@
-from config import Site_csv, SiteType_csv, Finds_csv
+from config import Site_csv, SiteType_csv, Finds_csv, NL_boundary
 import pandas as pd
 import geopandas as gpd
 
@@ -6,11 +6,7 @@ import geopandas as gpd
 Site = pd.read_csv(Site_csv, usecols=['SiteID', 'Place', 'Toponym'])
 SiteType = pd.read_csv(SiteType_csv, usecols=['SiteID', 'Site_subID', 'X-coordinate_RD', 'Y-coordinate_RD', 'Site_type'])
 Find1 = pd.read_csv(Finds_csv, usecols=['FindID', 'SiteID', 'Site_subID', 'Material', 'Type'])
-
-# Only using Finds that have a SiteID that is also found in Site
-Finds = Find1[Find1['SiteID'].isin(Site['SiteID'])]
-# Option to save the cleaned up Finds to a csv-file
-# Finds.to_csv("cleanFinds.csv")
+NL = gpd.read_file(NL_boundary)
 
 # Combining two columns to create 1 Name column
 Site['Name'] = Site['Place'] + '-' + Site['Toponym']
@@ -68,16 +64,30 @@ def finds_cid (df):
     # Reordering columns to: SiteID, Site_CID, FindID, Material, Type
     df = df.iloc[:, [1, 4, 0, 2, 3]]
     return df
-Finds = finds_cid(Finds)
+Find1 = finds_cid(Find1)
 
 # Option to save the null sites to a csv-file
 # Site_null.to_csv('created_csv/Sites_null.csv')
 
 # Combining the original Sites with the unassigned subsites
 Sites = pd.concat([Sites, Site_null], ignore_index=True)
-# Dropping site with faulty coordinates and thus laying in the east of Europe
-Sites = Sites.drop(Sites[Sites.SiteID == '1262'].index)
 
 # Transforming dataframe into a geo-dataframe
-Sitesg = gpd.GeoDataFrame(Sites, geometry=gpd.points_from_xy(Sites.X, Sites.Y), crs="EPSG:28992")
+Sites = gpd.GeoDataFrame(Sites, geometry=gpd.points_from_xy(Sites.X, Sites.Y), crs="EPSG:28992")
 # print(Sitesg.head())
+
+NL_geom = NL.geometry
+NL_union = NL_geom.union_all()
+Sites = Sites.loc[Sites['geometry'].within(NL_union)]
+# Sites.to_file('created_gpkgs/Sites.gpkg', driver ='GPKG', layer='name')
+
+# Only using Finds that have a SiteID that is also found in Site
+Find2 = Find1[Find1['Site_CID'].isin(Sites['Site_CID'])]
+# Option to save the cleaned up Finds to a csv-file
+# Finds.to_csv('created_csv/cleanFinds.csv')
+
+Finds = Sites.merge(Find2, on=['SiteID', 'Site_CID'], how='left')
+
+Finds = gpd.GeoDataFrame(Finds)
+Finds['FindID'] = Finds['FindID'].astype('Int64')
+print('Data combined')
