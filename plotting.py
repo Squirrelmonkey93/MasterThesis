@@ -11,18 +11,19 @@ def plotting(s_name:False, s_id:False, s_type:False, f_material:False, f_type:Fa
 
     # Plot boundary
     ax = NL.boundary.plot(color='black')
+    ax.set_axis_off()
 
     # Plot for the specifics
     if s_name:
-        site_name(s_name).plot(ax=ax, color='magenta', zorder=5)
+        site_name(s_name).plot(ax=ax, color='magenta', zorder=5, markersize=5)
     if s_id:
-        site_id(s_id).plot(ax=ax, color='red', zorder=4)
+        site_id(s_id).plot(ax=ax, color='red', zorder=4, markersize=5)
     if s_type:
-        site_type(s_type).plot(ax=ax, color='green', zorder=1)
+        site_type(s_type).plot(ax=ax, color='green', zorder=1, markersize=5)
     if f_material:
-        find_material(f_material).plot(ax=ax, color='cyan', zorder=2)
+        find_material(f_material).plot(ax=ax, color='cyan', zorder=2, markersize=5)
     if f_type:
-        find_type(f_type).plot(ax=ax, color='blue', zorder=3)
+        find_type(f_type).plot(ax=ax, color='blue', zorder=3, markersize=5)
 
     plt.show()
 

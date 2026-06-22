@@ -10,7 +10,7 @@ from combining_data import Sites, Finds
 keramiek = find_material('keramiek')
 rural = site_type('rural settlement')
 
-def calculate_hexagon_density(data_set: DataFrame, export:False):
+def calculate_hexagon_density(data_set: DataFrame, export=False):
     hexagons = gpd.read_file(grid)
     # hexagons = hexagons.drop(['left', 'right', 'top', 'bottom', 'row_index', 'col_index'], axis=1)
     hexagons['sqkm'] = hexagons.area / 10 ** 6  # /10**6 for sqkm instead of sqm
@@ -26,11 +26,12 @@ def calculate_hexagon_density(data_set: DataFrame, export:False):
         hexagons2.to_file('created_gpkgs/Hexagon_density.gpkg', driver='GPKG', layer='name')
     return hexagons2
 
-def plot_hexagon_density(data_set: DataFrame):
+def plot_hexagon_density(data_set: DataFrame, export=False):
     NL = gpd.read_file(NL_boundary)
     blegh = calculate_hexagon_density(data_set)
     ax = NL.boundary.plot(color='black')
-    blegh.plot(column='density', ax=ax, legend=True, legend_kwds={'label':'Density'})
+    ax.set_axis_off()
+    blegh.plot(column='density', cmap="viridis_r",ax=ax, legend=True, legend_kwds={'label':'Density'})
     plt.show()
 
 plot_hexagon_density(Finds)

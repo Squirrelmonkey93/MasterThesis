@@ -20,9 +20,10 @@ def search_radius(Site_id, range_size, visualize=False):
         NL = gpd.read_file(NL_boundary)
         # Plot boundary
         ax = NL.boundary.plot(color='black')
+        ax.set_axis_off()
         location.buffered.plot(ax=ax, color='magenta', alpha=0.3)
-        inside_range.plot(ax=ax, color='green')
-        location.geometry.plot(ax=ax, color='blue')
+        inside_range.plot(ax=ax, color='green', markersize=5)
+        location.geometry.plot(ax=ax, color='blue', markersize=5)
         plt.show()
     return inside_range
 
@@ -67,8 +68,9 @@ def clustering(Site_id, range_size, visualize=False):
         NL = gpd.read_file(NL_boundary)
         # Plot boundary
         ax = NL.boundary.plot(color='black')
-        inside_cluster.plot(ax=ax, color='green')
-        start_location.geometry.plot(ax=ax, color='blue')
+        ax.set_axis_off()
+        inside_cluster.plot(ax=ax, color='green', markersize=5)
+        start_location.geometry.plot(ax=ax, color='blue', markersize=5)
         plt.show()
     return inside_cluster
 
